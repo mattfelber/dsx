@@ -16,12 +16,19 @@ const Header: React.FC = () => {
               strokeLinecap="round" 
               strokeLinejoin="round"
             >
-              <path d="M4 6h16M4 12h16M4 18h16"></path>
-              <path d="M14 6l-6 6 6 6"></path>
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <path d="M6 8h.01" />
+              <path d="M10 8h.01" />
+              <path d="M14 8h.01" />
+              <path d="M18 8h.01" />
+              <path d="M8 12h.01" />
+              <path d="M12 12h.01" />
+              <path d="M16 12h.01" />
+              <path d="M7 16h10" />
             </svg>
             <div>
-              <h1 className="text-xl font-bold">DSX Docking Station</h1>
-              <p className="text-sm opacity-80">Network Troubleshooting Tool</p>
+              <h1 className="text-xl font-bold">DSX Troubleshooter</h1>
+              <p className="text-sm opacity-80">Docking Station Network Tool</p>
             </div>
           </div>
           <div className="hidden md:block">

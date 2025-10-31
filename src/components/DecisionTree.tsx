@@ -87,8 +87,7 @@ const DecisionTree: React.FC<DecisionTreeProps> = ({ onComplete }) => {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold text-primary">DSX Troubleshooter</h1>
+      <div className="flex justify-end items-center mb-4">
         {currentNodeId !== 'start' && (
           <button 
             onClick={handleRestart}
