@@ -3,7 +3,7 @@ import { DecisionNode } from '../types';
 export const decisionTree: Record<string, DecisionNode> = {
   'start': {
     id: 'start',
-    question: '📯 DSX Docking Station – Network Troubleshooting Flow\nSTART',
+    question: '🔌 DSX Docking Station – Network Troubleshooting Flow\nSTART',
     type: 'start',
     options: [
       {
