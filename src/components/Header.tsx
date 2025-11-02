@@ -31,11 +31,7 @@ const Header: React.FC = () => {
               <p className="text-sm opacity-80">Docking Station Network Tool</p>
             </div>
           </div>
-          <div className="hidden md:block">
-            <span className="text-sm bg-white bg-opacity-20 px-3 py-1 rounded-full">
-              Industrial Scientific
-            </span>
-          </div>
+          {/* Brand badge removed */}
         </div>
       </div>
     </header>

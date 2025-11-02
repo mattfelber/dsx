@@ -195,13 +195,13 @@ export const decisionTree: Record<string, DecisionNode> = {
   },
   'escalate-dhcp': {
     id: 'escalate-dhcp',
-    question: 'DHCP not assigning IP → Escalate to SE (inetse@indsci.com).',
+    question: 'DHCP not assigning IP → Escalate to SE team.',
     type: 'end',
     options: [
       {
         text: 'END: Escalate to SE team',
         nextNodeId: null,
-        actionTaken: 'Escalated DHCP issue to SE team (inetse@indsci.com)'
+        actionTaken: 'Escalated DHCP issue to SE team'
       }
     ]
   },
@@ -248,13 +248,13 @@ export const decisionTree: Record<string, DecisionNode> = {
   },
   'escalate': {
     id: 'escalate',
-    question: 'Escalate to SE (inetse@indsci.com).',
+    question: 'Escalate to SE team.',
     type: 'end',
     options: [
       {
         text: 'END: Escalate to SE team',
         nextNodeId: null,
-        actionTaken: 'Escalated issue to SE team (inetse@indsci.com)'
+        actionTaken: 'Escalated issue to SE team'
       }
     ]
   },
