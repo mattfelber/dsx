@@ -3,42 +3,43 @@ import { DecisionNode } from '../types';
 export const decisionTree: Record<string, DecisionNode> = {
   'start': {
     id: 'start',
-    question: '🔌 DSX Docking Station – Network Troubleshooting Flow\nSTART',
+    question: '🔌 DSXi Docking Station – Troubleshooting START:',
     type: 'start',
     options: [
       {
-        text: 'Yes: There is a checkmark next to "iNet" on the dock display',
+        text: 'There is a checkmark next to "iNet" on the dock display',
         nextNodeId: 'working',
         icon: 'check',
         actionTaken: 'Confirmed network is working with checkmark next to iNet'
       },
       {
-        text: 'No (shows an X)',
-        nextNodeId: 'step1',
+        text: 'Shows an X',
+        nextNodeId: 'ethernet-check',
         icon: 'x',
         actionTaken: 'Identified dock showing X (not connected to network)'
       },
       {
-        text: 'Arrow-up: The dock is trying to connect',
+        text: 'Shows an arrow up (The dock is trying to upload)',
         nextNodeId: 'arrow-up-wait',
         icon: 'arrow-up',
-        actionTaken: 'Identified dock showing arrow up (attempting to connect)'
+        actionTaken: 'Identified dock showing arrow up (attempting to upload)'
       }
     ]
   },
   'arrow-up-wait': {
     id: 'arrow-up-wait',
-    question: 'The arrow up symbol (⬆️) indicates the dock is attempting to connect to iNet.\n\nPlease check the following:\n\n→ Look at the "last upload time" in iNet for this dock\n   • If the upload time is very recent (within last few minutes), the connection is working\n   • The dock may still show the arrow while completing its upload cycle\n\n→ Wait up to 10 minutes to see if the status changes to a checkmark',
+    question: 'The arrow up symbol (⬆️) indicates the dock is attempting to upload to iNet.\n\nPlease check the following:\n\n→ Look at the "last upload time" in iNet for this dock\n   • If the upload time is very recent (within last few minutes), the connection is working\n   • The dock may still show the arrow while completing its upload cycle\n\n→ Wait up to 10 minutes to see if the status changes to a checkmark',
     type: 'step',
     options: [
       {
-        text: 'Success: Recent upload time in iNet or status changed to checkmark (✓)',
+        text: 'Recent upload time in iNet or status changed to checkmark (✓)',
         nextNodeId: 'working',
+        icon: 'check',
         actionTaken: 'Confirmed connection is working based on upload time or status change'
       },
       {
-        text: 'Problem: No recent upload time and status shows X or arrow up after waiting',
-        nextNodeId: 'step1',
+        text: 'No recent upload time and status shows X or arrow up after waiting',
+        nextNodeId: 'ethernet-check',
         actionTaken: 'Connection attempt failed or timed out after waiting'
       }
     ]
@@ -55,13 +56,70 @@ export const decisionTree: Record<string, DecisionNode> = {
       }
     ]
   },
+  'ethernet-check': {
+    id: 'ethernet-check',
+    question: 'Is the Ethernet cable plugged in with the LED on the port lit up?',
+    type: 'step',
+    options: [
+      {
+        text: 'The Ethernet cable is plugged in and the LED is lit',
+        nextNodeId: 'step1',
+        icon: 'check',
+        actionTaken: 'Confirmed Ethernet cable is connected with LED lit'
+      },
+      {
+        text: 'The Ethernet cable is not plugged in or LED is not lit',
+        nextNodeId: 'reconnect-ethernet',
+        icon: 'x',
+        actionTaken: 'Identified Ethernet cable issue (not connected or LED not lit)'
+      }
+    ]
+  },
+  'reconnect-ethernet': {
+    id: 'reconnect-ethernet',
+    question: 'Reseat the cable securely. → Replace with a known-good Ethernet cable (cable could be faulty). → Connect to a known-working Ethernet port. → Reboot the dock.',
+    type: 'action',
+    options: [
+      {
+        text: 'Ethernet cable connected and LED is now lit',
+        nextNodeId: 'step1',
+        icon: 'check',
+        actionTaken: 'Connected Ethernet cable properly and verified LED is lit'
+      },
+      {
+        text: 'LED still not lit after reconnecting cable',
+        nextNodeId: 'try-different-cable-first',
+        icon: 'x',
+        actionTaken: 'LED still not lit after reconnecting Ethernet cable'
+      }
+    ]
+  },
+  'try-different-cable-first': {
+    id: 'try-different-cable-first',
+    question: 'Try using a different Ethernet cable that is known to work. Also try connecting to a different network port if available.',
+    type: 'action',
+    options: [
+      {
+        text: 'LED is now lit with new cable/port',
+        nextNodeId: 'step1',
+        icon: 'check',
+        actionTaken: 'Replaced cable/changed port and LED is now lit'
+      },
+      {
+        text: 'LED still not lit after trying different cable/port',
+        nextNodeId: 'hardware-failure',
+        icon: 'x',
+        actionTaken: 'LED remains unlit after trying different cable and port'
+      }
+    ]
+  },
   'step1': {
     id: 'step1',
     question: 'Step 1 – Preparation:\n',
     type: 'step',
     options: [
       {
-        text: 'Undock the gas monitor and ask: "Can you tell me what IP address appears on the dock display?"',
+        text: 'Undock the gas monitor and note what IP address appears on the dock display.',
         nextNodeId: 'step2',
         actionTaken: 'Undocked gas monitor and asked for IP address shown on display'
       }
@@ -73,12 +131,12 @@ export const decisionTree: Record<string, DecisionNode> = {
     type: 'step',
     options: [
       {
-        text: 'Case 1: The IP address is NOT valid — shows as 0.0.0.0 or 169.254.x.x',
+        text: 'The IP address is NOT valid — shows as 0.0.0.0 or 169.254.x.x',
         nextNodeId: 'step3',
         actionTaken: 'Identified invalid IP address (0.0.0.0 or 169.254.x.x)'
       },
       {
-        text: 'Case 2: The IP address appears valid — meaning it\'s not 0.0.0.0 or 169.254.x.x (for example: 192.168.x.x, 10.x.x.x, etc.)',
+        text: 'The IP address appears valid — meaning it\'s not 0.0.0.0 or 169.254.x.x (for example: 192.168.x.x, 10.x.x.x, etc.)',
         nextNodeId: 'step5',
         actionTaken: 'Identified valid IP address'
       }
@@ -86,7 +144,7 @@ export const decisionTree: Record<string, DecisionNode> = {
   },
   'step3': {
     id: 'step3',
-    question: 'Step 3 – Physical Connection Check:\n\nIs the Ethernet link LED on the dock\'s port blinking?',
+    question: 'Step 3 – Physical Connection Check:\n\nIs the Ethernet cable LED on the dock\'s port blinking?',
     type: 'step',
     options: [
       {
@@ -115,7 +173,7 @@ export const decisionTree: Record<string, DecisionNode> = {
   },
   'step4': {
     id: 'step4',
-    question: 'Step 4 – Verify Router or Switch Connection:\n\nIs the dock connected to a router or network switch (not a PC)?',
+    question: 'Step 4 – Verify Router or Switch Connection:\n\nIs the dock connected to a router or network switch?',
     type: 'step',
     options: [
       {
@@ -132,13 +190,13 @@ export const decisionTree: Record<string, DecisionNode> = {
   },
   'connect-router': {
     id: 'connect-router',
-    question: '→ Plug the cable into a known working router or switch port.\n→ Reboot the dock.\n→ Check IP again.',
+    question: '→ Use a known good Ethernet cable.\n→ Plug the cable into a known working router or switch port.\n→ Reboot the dock.\n→ Check IP again.',
     type: 'action',
     options: [
       {
         text: 'Check IP after connecting to router/switch and rebooting',
         nextNodeId: 'check-ip-again',
-        actionTaken: 'Connected dock to working router/switch port and rebooted'
+        actionTaken: 'Used known good Ethernet cable and connected dock to working router/switch port, then rebooted'
       }
     ]
   },
@@ -231,16 +289,17 @@ export const decisionTree: Record<string, DecisionNode> = {
   },
   'check-after-reboot': {
     id: 'check-after-reboot',
-    question: 'After rebooting:\n\n1. You should see an arrow up (⬆️) while the dock is attempting to upload data\n2. If successful, this will change to a checkmark (✓) once fully connected\n3. Watch for approximately 5-10 minutes to see if the connection completes',
+    question: 'After rebooting:\n\n1. You should see an arrow up (⬆️) while the dock is attempting to upload data\n2. If successful, this will change to a checkmark (✓) once fully uploaded\n3. Watch for approximately 5-10 minutes to see if the upload completes',
     type: 'step',
     options: [
       {
-        text: 'Success: A checkmark (✓) appears — connection established',
+        text: 'A checkmark (✓) appears — connection established',
         nextNodeId: 'working',
+        icon: 'check',
         actionTaken: 'Upload completed successfully, checkmark appeared'
       },
       {
-        text: 'Failure: Still shows X or arrow up after waiting — not connecting despite valid IP',
+        text: 'Still shows X or arrow up after waiting — not connecting despite valid IP',
         nextNodeId: 'escalate',
         actionTaken: 'Connection failed after reboot despite valid IP'
       }
