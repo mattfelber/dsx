@@ -81,7 +81,7 @@ export const decisionTree: Record<string, DecisionNode> = {
     type: 'action',
     options: [
       {
-        text: 'Ethernet cable connected and LED is now lit',
+        text: 'Ethernet cable connected, good port used, and LED is lit',
         nextNodeId: 'step1',
         icon: 'check',
         actionTaken: 'Connected Ethernet cable properly and verified LED is lit'
@@ -90,7 +90,7 @@ export const decisionTree: Record<string, DecisionNode> = {
         text: 'LED still not lit after reconnecting cable',
         nextNodeId: 'try-different-cable-first',
         icon: 'x',
-        actionTaken: 'LED still not lit after reconnecting Ethernet cable'
+        actionTaken: 'LED not lit after reconnecting a known-good Ethernet cable'
       }
     ]
   },
