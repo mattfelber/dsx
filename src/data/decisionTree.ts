@@ -204,9 +204,9 @@ export const decisionTree: Record<string, DecisionNode> = {
     type: 'action',
     options: [
       {
-        text: 'Check the IP address again',
-        nextNodeId: 'check-ip-again',
-        actionTaken: 'Moved Ethernet to a different network port and rebooted to retry DHCP'
+        text: 'Valid IP (for example: 192.168.x.x, 10.x.x.x, etc.) (NOT 0.0.0.0 or 169.254.x.x)',
+        nextNodeId: 'inet-status-check',
+        actionTaken: 'Got a valid IP after moving to a different network port and rebooting'
       },
       {
         text: 'Still 169.254.x.x after trying multiple ports/reboots',
