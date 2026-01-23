@@ -136,8 +136,8 @@ export const decisionTree: Record<string, DecisionNode> = {
         actionTaken: 'Identified invalid IP address (0.0.0.0 or 169.254.x.x)'
       },
       {
-        text: 'The IP address appears valid — meaning it\'s not 0.0.0.0 or 169.254.x.x (for example: 192.168.x.x, 10.x.x.x, etc.)',
-        nextNodeId: 'step5',
+        text: 'The IP address looks valid (for example: 192.168.x.x, 10.x.x.x, etc.) (NOT 0.0.0.0 or 169.254.x.x)',
+        nextNodeId: 'inet-status-check',
         actionTaken: 'Identified valid IP address'
       }
     ]
@@ -148,26 +148,107 @@ export const decisionTree: Record<string, DecisionNode> = {
     type: 'step',
     options: [
       {
-        text: 'No (LED off) / cable loose or potentially bad',
+        text: 'No (LED not blinking / off)',
         nextNodeId: 'reconnect',
-        actionTaken: 'Identified physical connection issue (LED off, loose or bad cable)'
+        actionTaken: 'Identified physical connection issue (LED not blinking / off)'
       },
       {
         text: 'Yes, LED is blinking',
-        nextNodeId: 'step4',
-        actionTaken: 'Confirmed LED is blinking on Ethernet port'
+        nextNodeId: 'try-different-cable',
+        actionTaken: 'Confirmed LED is blinking; still performing cable/port swap to rule out a bad cable or bad port'
       }
     ]
   },
   'reconnect': {
     id: 'reconnect',
-    question: '→ Reseat the cable securely.\n→ Replace with a known-good Ethernet cable (cable could be faulty).\n→ Connect to a known-working Ethernet port.\n→ Reboot the dock.',
+    question: '→ Reseat the cable securely.\n→ Replace with a known-good Ethernet cable (cable could be faulty).\n→ Connect to a known-working Ethernet port on the router/switch/extender.\n→ Reboot the dock.',
     type: 'action',
     options: [
       {
-        text: 'Check IP again after replacing cable and rebooting',
-        nextNodeId: 'step2',
+        text: 'Check the IP address again after rebooting',
+        nextNodeId: 'check-ip-again',
         actionTaken: 'Replaced with known-good cable, connected to working port, and rebooted dock'
+      }
+    ]
+  },
+  'check-ip-again': {
+    id: 'check-ip-again',
+    question: 'Now check the IP address shown on the dock display:',
+    type: 'step',
+    options: [
+      {
+        text: '0.0.0.0',
+        nextNodeId: 'try-different-cable',
+        actionTaken: 'IP address showing 0.0.0.0 (likely bad cable or the network port does not provide network access)'
+      },
+      {
+        text: '169.254.x.x',
+        nextNodeId: 'dhcp-try-different-port',
+        actionTaken: 'IP address showing 169.254.x.x (link detected but DHCP is not assigning an IP)'
+      },
+      {
+        text: 'Still 0.0.0.0 after trying a known-good cable and known-working port',
+        nextNodeId: 'hardware-failure',
+        actionTaken: 'IP address persistently showing 0.0.0.0 after cable/port swaps and reboots'
+      },
+      {
+        text: 'Valid IP (for example: 192.168.x.x, 10.x.x.x, etc.) (NOT 0.0.0.0 or 169.254.x.x)',
+        nextNodeId: 'inet-status-check',
+        actionTaken: 'Valid IP address obtained'
+      }
+    ]
+  },
+  'dhcp-try-different-port': {
+    id: 'dhcp-try-different-port',
+    question: 'The dock has link, but DHCP is not assigning an IP (169.254.x.x).\n\n→ Move the Ethernet cable to a different port on the router/switch/extender.\n→ Reboot the dock.\n\nThen check the IP address again.',
+    type: 'action',
+    options: [
+      {
+        text: 'Check the IP address again',
+        nextNodeId: 'check-ip-again',
+        actionTaken: 'Moved Ethernet to a different network port and rebooted to retry DHCP'
+      },
+      {
+        text: 'Still 169.254.x.x after trying multiple ports/reboots',
+        nextNodeId: 'escalate-dhcp',
+        actionTaken: 'DHCP still not assigning an IP after trying multiple ports and reboots'
+      }
+    ]
+  },
+  'inet-status-check': {
+    id: 'inet-status-check',
+    question: 'Now look at the dock display next to "iNet". What do you see?',
+    type: 'step',
+    options: [
+      {
+        text: 'A checkmark (✓) next to iNet',
+        nextNodeId: 'working',
+        icon: 'check',
+        actionTaken: 'Confirmed iNet connectivity (checkmark present)'
+      },
+      {
+        text: 'An arrow up (⬆️) (dock is trying to upload)',
+        nextNodeId: 'arrow-up-wait',
+        icon: 'arrow-up',
+        actionTaken: 'Dock is uploading; following upload/wait steps'
+      },
+      {
+        text: 'An X (❌) next to iNet',
+        nextNodeId: 'step5',
+        icon: 'x',
+        actionTaken: 'Valid IP but still not connecting to iNet (X present)'
+      }
+    ]
+  },
+  'try-different-cable': {
+    id: 'try-different-cable',
+    question: 'Try a different Ethernet cable and port known to work, then reboot again.',
+    type: 'action',
+    options: [
+      {
+        text: 'Check IP after changing cable/port and rebooting',
+        nextNodeId: 'check-ip-again',
+        actionTaken: 'Replaced Ethernet cable and changed port, then rebooted'
       }
     ]
   },
@@ -209,45 +290,6 @@ export const decisionTree: Record<string, DecisionNode> = {
         text: 'Check IP after rebooting',
         nextNodeId: 'check-ip-again',
         actionTaken: 'Rebooted dock to refresh IP address'
-      }
-    ]
-  },
-  'check-ip-again': {
-    id: 'check-ip-again',
-    question: 'Now check the new IP address:',
-    type: 'step',
-    options: [
-      {
-        text: '0.0.0.0',
-        nextNodeId: 'try-different-cable',
-        actionTaken: 'IP address still showing 0.0.0.0 after reboot'
-      },
-      {
-        text: '169.254.x.x',
-        nextNodeId: 'escalate-dhcp',
-        actionTaken: 'IP address showing 169.254.x.x (DHCP not assigning IP)'
-      },
-      {
-        text: 'Still 0.0.0.0 after all tests',
-        nextNodeId: 'hardware-failure',
-        actionTaken: 'IP address persistently showing 0.0.0.0 after all tests'
-      },
-      {
-        text: 'Valid IP',
-        nextNodeId: 'step5',
-        actionTaken: 'Valid IP address obtained after reboot'
-      }
-    ]
-  },
-  'try-different-cable': {
-    id: 'try-different-cable',
-    question: 'Try a different Ethernet cable and port known to work, then reboot again.',
-    type: 'action',
-    options: [
-      {
-        text: 'Check IP after changing cable/port and rebooting',
-        nextNodeId: 'check-ip-again',
-        actionTaken: 'Replaced Ethernet cable and changed port, then rebooted'
       }
     ]
   },
